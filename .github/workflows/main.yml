@@ -1,0 +1,71 @@
+name: Testw
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2025
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Disable password complexity
+        run: |
+          secedit /export /cfg $env:TEMP\secpol.cfg
+          (Get-Content $env:TEMP\secpol.cfg).Replace("PasswordComplexity = 1", "PasswordComplexity = 0") | Set-Content $env:TEMP\secpol.cfg
+          secedit /configure /db $env:TEMP\secedit.sdb /cfg $env:TEMP\secpol.cfg /areas SECURITYPOLICY
+          gpupdate /force
+
+      - name: Create user Matrix
+        run: |
+          net user Matrix Matrix#1234 /add
+          net localgroup "Administrators" Matrix /add
+          net localgroup "Remote Desktop Users" Matrix /add
+          reg add "HKLM\SOFTWARE\Microsoft\Windows\DWM" /v ForceEffectMode /t REG_DWORD /d 2 /f
+          reg add "HKU\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
+          reg add "HKU\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
+          reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
+          reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
+
+      
+
+          
+      - name: Install ZeroTier
+        run: |
+          Invoke-WebRequest -Uri "https://download.zerotier.com/dist/ZeroTierOne.msi" -OutFile "$env:TEMP\ZeroTierOne.msi"
+          Start-Process msiexec.exe -Wait -ArgumentList '/i', "$env:TEMP\ZeroTierOne.msi", '/qn'
+
+      - name: Restore ZeroTier identity
+        run: |
+          $ztPath = "C:\ProgramData\ZeroTier\One"
+          if (!(Test-Path $ztPath)) { New-Item -ItemType Directory -Path $ztPath -Force }
+          Set-Content -Path "$ztPath\identity.secret" -Value "${{ secrets.ZT_IDENTITY_SECRET }}"
+          Set-Content -Path "$ztPath\identity.public" -Value "${{ secrets.ZT_IDENTITY_PUBLIC }}"
+
+      
+      - name: Join ZeroTier network
+        run: |
+          & "C:\Program Files (x86)\ZeroTier\One\zerotier-cli.bat" join 1c33c1ced04fa8d9
+
+      - name: Enable RDP
+        run: |
+          # Aktifkan RDP
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+          # Izinkan lewat firewall
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          # Tambahkan user Matrix ke grup (tidak error jika sudah ada)
+          Add-LocalGroupMember -Group "Remote Desktop Users" -Member "Matrix" -ErrorAction SilentlyContinue
+
+      - name: Force dark theme for default user
+        run: |
+          reg add "HKU\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
+          reg add "HKU\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
+          reg add "HKU\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Themes" /v CurrentTheme /t REG_SZ /d "C:\Windows\Resources\Themes\dark.theme" /f
+
+
+      - name: Keep session alive
+        run: |
+          Write-Output "Runner is alive. Press Ctrl+C to stop."
+          while ($true) { Start-Sleep -Seconds 300 }
