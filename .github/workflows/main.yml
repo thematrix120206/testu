@@ -49,6 +49,14 @@ jobs:
         run: |
           & "C:\Program Files (x86)\ZeroTier\One\zerotier-cli.bat" join 1c33c1ced04fa8d9
 
+      - name: Restore ZeroTier identity
+        run: |
+          $ztPath = "C:\ProgramData\ZeroTier\One"
+          if (!(Test-Path $ztPath)) { New-Item -ItemType Directory -Path $ztPath -Force }
+          Set-Content -Path "$ztPath\identity.secret" -Value "${{ secrets.ZT_IDENTITY_SECRET }}"
+          Set-Content -Path "$ztPath\identity.public" -Value "${{ secrets.ZT_IDENTITY_PUBLIC }}"
+
+
       - name: Enable RDP
         run: |
           # Aktifkan RDP
@@ -58,12 +66,16 @@ jobs:
           # Tambahkan user Matrix ke grup (tidak error jika sudah ada)
           Add-LocalGroupMember -Group "Remote Desktop Users" -Member "Matrix" -ErrorAction SilentlyContinue
 
-      - name: Force dark theme for default user
+      - name: Force dark theme system-wide
         run: |
+          # Default User Profile (biar user baru login langsung dark)
           reg add "HKU\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
           reg add "HKU\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
           reg add "HKU\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Themes" /v CurrentTheme /t REG_SZ /d "C:\Windows\Resources\Themes\dark.theme" /f
 
+          # System-wide policy (biar lock screen + beberapa UI pakai dark juga)
+          reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
+          reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
 
       - name: Keep session alive
         run: |
