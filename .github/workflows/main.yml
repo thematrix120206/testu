@@ -21,7 +21,7 @@ jobs:
 
       - name: Start Tailscale
         run: |
-          & "C:\Program Files\Tailscale\tailscale.exe" up --authkey tskey-auth-kUWLySvNoN11CNTRL-eB7M45XFtZVVJooZFJkdZVDXvHxu5FZR --accept-routes
+          & "C:\Program Files\Tailscale\tailscale.exe" up --authkey tskey-auth-kGyC99r9Ms11CNTRL-Nv8RByzL3y1H7DoE8CGNy1h49s52bjrK --accept-routes
         env:
           TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
 
