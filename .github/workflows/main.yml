@@ -7,9 +7,19 @@ on:
 jobs:
   build:
     runs-on: windows-2025
+    permissions:
+      id-token: write # penting untuk OIDC
+      contents: read
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Login to Tailscale via OIDC
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: "github"
 
       - name: Disable password complexity
         run: |
