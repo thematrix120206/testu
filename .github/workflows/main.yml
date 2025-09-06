@@ -50,7 +50,6 @@ jobs:
           Start-Process msiexec.exe -Wait -ArgumentList '/i', "$env:TEMP\ZeroTierOne.msi", '/qn'
 
 
-
       - name: Restore ZeroTier identity
         run: |
           $ztPath = "C:\ProgramData\ZeroTier\One"
