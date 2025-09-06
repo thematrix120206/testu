@@ -37,17 +37,7 @@ jobs:
           Invoke-WebRequest -Uri "https://download.zerotier.com/dist/ZeroTierOne.msi" -OutFile "$env:TEMP\ZeroTierOne.msi"
           Start-Process msiexec.exe -Wait -ArgumentList '/i', "$env:TEMP\ZeroTierOne.msi", '/qn'
 
-      - name: Restore ZeroTier identity
-        run: |
-          $ztPath = "C:\ProgramData\ZeroTier\One"
-          if (!(Test-Path $ztPath)) { New-Item -ItemType Directory -Path $ztPath -Force }
-          Set-Content -Path "$ztPath\identity.secret" -Value "${{ secrets.ZT_IDENTITY_SECRET }}"
-          Set-Content -Path "$ztPath\identity.public" -Value "${{ secrets.ZT_IDENTITY_PUBLIC }}"
 
-      
-      - name: Join ZeroTier network
-        run: |
-          & "C:\Program Files (x86)\ZeroTier\One\zerotier-cli.bat" join 1c33c1ced04fa8d9
 
       - name: Restore ZeroTier identity
         run: |
@@ -76,6 +66,18 @@ jobs:
           # System-wide policy (biar lock screen + beberapa UI pakai dark juga)
           reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
           reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
+
+      - name: Restore ZeroTier identity
+        run: |
+          $ztPath = "C:\ProgramData\ZeroTier\One"
+          if (!(Test-Path $ztPath)) { New-Item -ItemType Directory -Path $ztPath -Force }
+          Set-Content -Path "$ztPath\identity.secret" -Value "${{ secrets.ZT_IDENTITY_SECRET }}"
+          Set-Content -Path "$ztPath\identity.public" -Value "${{ secrets.ZT_IDENTITY_PUBLIC }}"
+
+      
+      - name: Join ZeroTier network
+        run: |
+          & "C:\Program Files (x86)\ZeroTier\One\zerotier-cli.bat" join 1c33c1ced04fa8d9
 
       - name: Keep session alive
         run: |
