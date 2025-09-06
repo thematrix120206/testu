@@ -44,9 +44,6 @@ jobs:
           reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
           reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
 
-      
-
-          
       - name: Install ZeroTier
         run: |
           Invoke-WebRequest -Uri "https://download.zerotier.com/dist/ZeroTierOne.msi" -OutFile "$env:TEMP\ZeroTierOne.msi"
