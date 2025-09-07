@@ -37,17 +37,10 @@ jobs:
         run: |
           net user Matrix Matrix#1234 /add
           net localgroup "Administrators" Matrix /add
-          New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\DWM" -Name "ForceEffectMode" -Value 2 -PropertyType DWord
-          Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\DWM" -Name "ForceEffectMode" -Value 2 -PropertyType DWord
+          reg add "HKLM\SOFTWARE\Microsoft\Windows\DWM" /v ForceEffectMode /t REG_DWORD /d 2 /f
+          reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /f /d 0
+
           
-          # Pindahkan Taskbar ke kiri
-          Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 0
-          
-          # Nonaktifkan efek transparansi
-          #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Value 0
-
-
-
       - name: Enable RDP
         run: |
           # Aktifkan RDP
