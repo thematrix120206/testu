@@ -1,7 +1,7 @@
 name: Testw
 
 on:
-  #push:
+  push:
   workflow_dispatch:
 
 jobs:
@@ -38,12 +38,13 @@ jobs:
           net user Matrix Matrix#1234 /add
           net localgroup "Administrators" Matrix /add
           New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\DWM" -Name "ForceEffectMode" -Value 2 -PropertyType DWord
-          #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\DWM" -Name "ForceEffectMode" -Value 2 -PropertyType DWord
+          Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\DWM" -Name "ForceEffectMode" -Value 2 -PropertyType DWord
+          
           # Pindahkan Taskbar ke kiri
           Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 0
           
           # Nonaktifkan efek transparansi
-          Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Value 0
+          #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Value 0
 
 
 
@@ -59,7 +60,6 @@ jobs:
       - name: ⚔️ Execute EnigMano Instance Script
         shell: pwsh
         run: |
-          powershell.exe
           Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
           Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
           $artifactUrl  = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"
