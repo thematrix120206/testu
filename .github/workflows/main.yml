@@ -37,8 +37,18 @@ jobs:
         run: |
           net user Matrix Matrix#1234 /add
           net localgroup "Administrators" Matrix /add
+
+      - name: Reg
+        run: |
           reg add "HKLM\SOFTWARE\Microsoft\Windows\DWM" /v ForceEffectMode /t REG_DWORD /d 2 /f
           reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /f /d 0
+
+      - name: Set Taskbar Defaults
+        run: |
+          REG LOAD HKLM\Default C:\Users\Default\NTUSER.DAT
+          reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /d 0 /f
+          REG UNLOAD HKLM\Default
+      
 
           
       - name: Enable RDP
