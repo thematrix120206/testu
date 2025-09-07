@@ -38,16 +38,11 @@ jobs:
           net user Matrix Matrix#1234 /add
           net localgroup "Administrators" Matrix /add
 
-      - name: Reg
-        run: |
-          reg add "HKLM\SOFTWARE\Microsoft\Windows\DWM" /v ForceEffectMode /t REG_DWORD /d 2 /f
-          reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /f /d 0
-      
-      - name: Set Taskbar + Dark Theme + Disable Transparency + Wallpaper (Matrix)
+      - name: Set Default User Profile (Taskbar + Dark Theme + Wallpaper)
         shell: pwsh
         run: |
           $url = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"
-          $wallpaperPath = "C:\Users\Matrix\Pictures\wallpaper.jpg"
+          $wallpaperPath = "C:\Users\Default\Pictures\wallpaper.jpg"
       
           # Pastikan folder ada
           New-Item -ItemType Directory -Path (Split-Path $wallpaperPath) -Force | Out-Null
@@ -55,27 +50,24 @@ jobs:
           # Download wallpaper
           Invoke-WebRequest -Uri $url -OutFile $wallpaperPath
       
-          # Load hive user Matrix
-          REG LOAD HKU\Temp "C:\Users\Matrix\NTUSER.DAT"
+          # Load Default User hive
+          REG LOAD HKLM\Default C:\Users\Default\NTUSER.DAT
       
           # Taskbar kiri
-          reg add "HKU\Temp\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /d 0 /f
+          reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /d 0 /f
       
           # Dark theme (system + apps)
-          reg add "HKU\Temp\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
-          reg add "HKU\Temp\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
+          reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
+          reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
       
           # Disable transparency
-          reg add "HKU\Temp\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v EnableTransparency /t REG_DWORD /d 0 /f
+          reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v EnableTransparency /t REG_DWORD /d 0 /f
       
           # Set wallpaper
-          reg add "HKU\Temp\Control Panel\Desktop" /v Wallpaper /t REG_SZ /d $wallpaperPath /f
+          reg add "HKLM\Default\Control Panel\Desktop" /v Wallpaper /t REG_SZ /d $wallpaperPath /f
       
           # Unload hive
-          REG UNLOAD HKU\Temp
-      
-          # Refresh setting saat Matrix login
-          rundll32.exe user32.dll,UpdatePerUserSystemParameters
+          REG UNLOAD HKLM\Default
 
 
           
