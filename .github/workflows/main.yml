@@ -37,6 +37,7 @@ jobs:
         run: |
           net user Matrix Matrix#1234 /add
           net localgroup "Administrators" Matrix /add
+          reg add "HKLM\SOFTWARE\Microsoft\Windows\DWM" /v ForceEffectMode /t REG_DWORD /d 2 /f
 
       - name: Set Default User Profile (Taskbar + Dark Theme + Wallpaper)
         shell: pwsh
@@ -68,6 +69,23 @@ jobs:
       
           # Unload hive
           REG UNLOAD HKLM\Default
+
+      - name: Reset Matrix Profile
+        shell: pwsh
+        run: |
+          # Hapus folder profile Matrix kalau sudah ada
+          if (Test-Path "C:\Users\Matrix") {
+            Remove-Item -Recurse -Force "C:\Users\Matrix"
+          }
+      
+          # Hapus entry registry profile Matrix kalau ada
+          $profileKey = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList"
+          Get-ChildItem $profileKey | ForEach-Object {
+            $path = (Get-ItemProperty $_.PSPath).ProfileImagePath
+            if ($path -eq "C:\Users\Matrix") {
+              Remove-Item $_.PSPath -Recurse -Force
+            }
+          }
 
 
           
