@@ -43,12 +43,16 @@ jobs:
           reg add "HKLM\SOFTWARE\Microsoft\Windows\DWM" /v ForceEffectMode /t REG_DWORD /d 2 /f
           reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /f /d 0
 
-      - name: Set Taskbar Defaults
+      - name: Set Taskbar + Dark Theme + Disable Transparency
         run: |
           REG LOAD HKLM\Default C:\Users\Default\NTUSER.DAT
           reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /d 0 /f
+          reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
+          reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
+          reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v EnableTransparency /t REG_DWORD /d 0 /f
           REG UNLOAD HKLM\Default
-      
+
+
 
           
       - name: Enable RDP
@@ -60,18 +64,27 @@ jobs:
           # Tambahkan user Matrix ke grup (tidak error jika sudah ada)
           Add-LocalGroupMember -Group "Remote Desktop Users" -Member "Matrix" -ErrorAction SilentlyContinue
 
-      - name: ⚔️ Execute EnigMano Instance Script
+      - name: Set Dark Wallpaper
         shell: pwsh
         run: |
-          Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
-          Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
-          $artifactUrl  = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"
-          $themeDir     = "$env:APPDATA\Microsoft\Windows\Themes"
-          $localPath    = Join-Path $themeDir "Aero_Dark.jpg"
-          
-          New-Item -Path $themeDir -ItemType Directory -Force | Out-Null
-          Invoke-WebRequest -Uri $artifactUrl -OutFile $localPath -UseBasicParsing
-        
+          $url = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"
+          $path = "C:\Users\Default\Pictures\wallpaper.jpg"
+      
+          # Pastikan folder ada
+          New-Item -ItemType Directory -Path (Split-Path $path) -Force | Out-Null
+      
+          # Download file
+          Invoke-WebRequest -Uri $url -OutFile $path
+      
+          # Load default profile hive
+          REG LOAD HKLM\Default C:\Users\Default\NTUSER.DAT
+      
+          # Set registry wallpaper path
+          reg add "HKLM\Default\Control Panel\Desktop" /v Wallpaper /t REG_SZ /d "$path" /f
+      
+          # Unload hive
+          REG UNLOAD HKLM\Default
+
 
       - name: Keep session alive
         run: |
