@@ -109,25 +109,29 @@ jobs:
           # Tambahkan user Matrix ke grup (tidak error jika sudah ada)
           Add-LocalGroupMember -Group "Remote Desktop Users" -Member "Matrix" -ErrorAction SilentlyContinue
 
-      - name: Create ApplyDarkTheme.ps1
+      - name: Setup Auto Apply Dark Theme on RDP Login
         shell: pwsh
         run: |
-          # Buat folder C:\Scripts kalau belum ada
+          # Buat folder script
           New-Item -ItemType Directory -Path C:\Scripts -Force | Out-Null
       
+          # Simpan script ApplyDarkTheme.ps1
           @'
-          $wallpaperPath = "C:\Users\runneradmin\Pictures\wallpaper.jpg"
-          Invoke-WebRequest -Uri "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg" -OutFile $wallpaperPath
+          $wallpaperPath = "C:\Users\Matrix\Pictures\wallpaper.jpg"
+      
+          if (-not (Test-Path $wallpaperPath)) {
+              Invoke-WebRequest -Uri "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg" -OutFile $wallpaperPath
+          }
+      
           Start-Process "rundll32.exe" -ArgumentList 'themecpl.dll,OpenThemeAction C:\Windows\resources\Themes\dark.theme'
           reg add "HKCU\Control Panel\Desktop" /v Wallpaper /t REG_SZ /d $wallpaperPath /f
           RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
           '@ | Out-File -FilePath C:\Scripts\ApplyDarkTheme.ps1 -Encoding UTF8
-
-      - name: Run ApplyDarkTheme
-        shell: pwsh
-        run: |
-          powershell.exe -ExecutionPolicy Bypass -File C:\Scripts\ApplyDarkTheme.ps1
-
+      
+          # Daftarkan Scheduled Task untuk user Matrix
+          $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Scripts\ApplyDarkTheme.ps1"
+          $Trigger = New-ScheduledTaskTrigger -AtLogOn
+          Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "ApplyDarkTheme" -User "Matrix" -Force
 
 
 
