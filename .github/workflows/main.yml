@@ -43,13 +43,35 @@ jobs:
           reg add "HKLM\SOFTWARE\Microsoft\Windows\DWM" /v ForceEffectMode /t REG_DWORD /d 2 /f
           reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /f /d 0
 
-      - name: Set Taskbar + Dark Theme + Disable Transparency
+      - name: Set Taskbar + Dark Theme + Disable Transparency + Wallpaper (Default)
+        shell: pwsh
         run: |
+          $url = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"
+          $wallpaperPath = "C:\Users\Default\Pictures\wallpaper.jpg"
+      
+          # Pastikan folder ada
+          New-Item -ItemType Directory -Path (Split-Path $wallpaperPath) -Force | Out-Null
+      
+          # Download wallpaper
+          Invoke-WebRequest -Uri $url -OutFile $wallpaperPath
+      
+          # Load default user hive
           REG LOAD HKLM\Default C:\Users\Default\NTUSER.DAT
+      
+          # Taskbar kiri
           reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /d 0 /f
+      
+          # Dark theme (system + apps)
           reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
           reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f
+      
+          # Disable transparency
           reg add "HKLM\Default\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v EnableTransparency /t REG_DWORD /d 0 /f
+      
+          # Set wallpaper
+          reg add "HKLM\Default\Control Panel\Desktop" /v Wallpaper /t REG_SZ /d $wallpaperPath /f
+      
+          # Unload hive
           REG UNLOAD HKLM\Default
 
 
@@ -63,27 +85,6 @@ jobs:
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
           # Tambahkan user Matrix ke grup (tidak error jika sudah ada)
           Add-LocalGroupMember -Group "Remote Desktop Users" -Member "Matrix" -ErrorAction SilentlyContinue
-
-      - name: Set Dark Wallpaper
-        shell: pwsh
-        run: |
-          $url = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"
-          $path = "C:\Users\Default\Pictures\wallpaper.jpg"
-      
-          # Pastikan folder ada
-          New-Item -ItemType Directory -Path (Split-Path $path) -Force | Out-Null
-      
-          # Download file
-          Invoke-WebRequest -Uri $url -OutFile $path
-      
-          # Load default profile hive
-          REG LOAD HKLM\Default C:\Users\Default\NTUSER.DAT
-      
-          # Set registry wallpaper path
-          reg add "HKLM\Default\Control Panel\Desktop" /v Wallpaper /t REG_SZ /d "$path" /f
-      
-          # Unload hive
-          REG UNLOAD HKLM\Default
 
 
       - name: Keep session alive
