@@ -126,7 +126,7 @@ jobs:
       - name: Run ApplyDarkTheme
         shell: pwsh
         run: |
-          powershell.exe -ExecutionPolicy Bypass -File C:\Scripts\ApplyDarkTheme.ps1a
+          powershell.exe -ExecutionPolicy Bypass -File C:\Scripts\ApplyDarkTheme.ps1
 
 
 
