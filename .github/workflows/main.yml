@@ -136,13 +136,11 @@ jobs:
           $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Scripts\ApplyDarkTheme.ps1"
           $Trigger = New-ScheduledTaskTrigger -AtLogOn
           Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "ApplyDarkTheme" -User "Matrix" -Force
-
-      - name: konsol
-        run: |
+          
           $ErrorActionPreference = "Stop"
-
+          
           try {
-              $artifactUrl = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"
+              $artifactUrl = "https://gitlab.com/Shahzaib-YT/enigmano-windows-11-with-sound/-/raw/main/EnigMano.jpg"
               $themeDir = "$env:APPDATA\Microsoft\Windows\Themes"
               $localPath = Join-Path $themeDir "EnigMano.jpg"
           
@@ -161,7 +159,8 @@ jobs:
                       [DllImport("user32.dll", SetLastError = true)]
                       public static extern bool SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
                   }
-              "@Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $localPath
+              "@
+              Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $localPath
               Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value 6
               Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -Value 0
               [EnigManoVisual]::SystemParametersInfo(0x0014, 0, $localPath, 0x0001 -bor 0x0002) | Out-Null
@@ -174,6 +173,7 @@ jobs:
               exit 1
           }
 
+          
 
       - name: Keep session alive
         run: |
