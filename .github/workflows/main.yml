@@ -22,12 +22,18 @@ jobs:
       - name: Start Tailscale
         run: |
           & "C:\Program Files\Tailscale\tailscale.exe" up --authkey "$env:TAILSCALE_AUTHKEY" --accept-routes
-          tailscale ip
         env:
           TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
 
+      - name: Get Tailscale IP
+        run: |
+          $tailscale_ip = & "C:\Program Files\Tailscale\tailscale.exe" ip -4
+          Write-Host "Tailscale IP: $tailscale_ip"
+          echo "TAILSCALE_IP=$tailscale_ip" >> $GITHUB_ENV
 
-
+      - name: Display Tailscale IP
+        run: |
+          echo "The Tailscale IP address is: ${{ env.TAILSCALE_IP }}"
 
       - name: Disable password complexity
         run: |
@@ -43,9 +49,6 @@ jobs:
           reg add "HKLM\SOFTWARE\Microsoft\Windows\DWM" /v ForceEffectMode /t REG_DWORD /d 2 /f
           rundll32.exe themecpl.dll,OpenThemeAction "C:\Windows\resources\Themes\dark.theme"
           
-
-
-
 
       - name: Set Default User Profile (Taskbar + Dark Theme + Wallpaper)
         shell: pwsh
