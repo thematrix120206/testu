@@ -1,7 +1,6 @@
 name: Testw
 
 on:
-  push:
   workflow_dispatch:
 
 jobs:
@@ -114,19 +113,6 @@ jobs:
 
 
 
-      - name: Setup Auto Wallpaper on RDP Login
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Path C:\Scripts -Force | Out-Null
-          
-          @'
-          (isi SetWallpaper.ps1 dari atas)
-          '@ | Out-File -FilePath C:\Scripts\SetWallpaper.ps1 -Encoding UTF8
-          
-          # Daftarkan Scheduled Task supaya selalu jalan tiap login Matrix
-          $Action  = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Scripts\SetWallpaper.ps1"
-          $Trigger = New-ScheduledTaskTrigger -AtLogOn
-          Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "SetWallpaper" -User "Matrix" -RunLevel Highest -Force
 
 
       - name: Keep session alive
