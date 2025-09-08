@@ -77,29 +77,30 @@ jobs:
           # Tambahkan user Matrix ke grup (tidak error jika sudah ada)
           Add-LocalGroupMember -Group "Remote Desktop Users" -Member "Matrix" -ErrorAction SilentlyContinue
 
-      - name: Setup Auto Apply Dark Theme + Custom Wallpaper on RDP Login
-        shell: pwsh
-        run: |
-          # Buat folder script
-          New-Item -ItemType Directory -Path C:\Scripts -Force | Out-Null
-      
-          # Simpan ApplyDarkTheme.ps1
-          @'
-          $ErrorActionPreference = "Stop"
-      
-          try {
-              # 1. Apply dark theme
+          - name: Setup Auto Apply Dark Theme on RDP Login
+            shell: pwsh
+            run: |
+              # Buat folder script
+              New-Item -ItemType Directory -Path C:\Scripts -Force | Out-Null
+              
+              # Simpan script ApplyDarkTheme.ps1
+              @'
+              $wallpaperPath = "C:\Users\Matrix\Pictures\wallpaper.jpg"
+              
+              if (-not (Test-Path $wallpaperPath)) {
+                  Invoke-WebRequest -Uri "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg" -OutFile $wallpaperPath
+              }
+              
               Start-Process "rundll32.exe" -ArgumentList 'themecpl.dll,OpenThemeAction C:\Windows\resources\Themes\dark.theme'
-              Start-Sleep -Seconds 2
-      
-              # 2. Set default wallpaper (Windows 11 dark blue)
-              $wallpaperDir = "$env:APPDATA\Microsoft\Windows\Themes"
-              $wallpaperPath = Join-Path $wallpaperDir "wallpaper.jpg"
-              New-Item -ItemType Directory -Path $wallpaperDir -Force | Out-Null
-              Invoke-WebRequest -Uri "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg" -OutFile $wallpaperPath -Force
               reg add "HKCU\Control Panel\Desktop" /v Wallpaper /t REG_SZ /d $wallpaperPath /f
               RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
-              Start-Sleep -Seconds 2
+              '@ | Out-File -FilePath C:\Scripts\ApplyDarkTheme.ps1 -Encoding UTF8
+              
+              # Daftarkan Scheduled Task untuk user Matrix
+              $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Scripts\ApplyDarkTheme.ps1"
+              $Trigger = New-ScheduledTaskTrigger -AtLogOn
+              Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "ApplyDarkTheme" -User "Matrix" -Force
+
 
 
       - name: Ganti Wallpaper
