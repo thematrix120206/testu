@@ -149,7 +149,6 @@ jobs:
         run: |
           tzutil /s "SE Asia Standard Time"
 
-
       - name: Keep session alive
         run: |
           Write-Output "Runner is alive. Press Ctrl+C to stop."
