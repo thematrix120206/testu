@@ -144,6 +144,11 @@ jobs:
           $Trigger = New-ScheduledTaskTrigger -AtLogOn
           Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "SetWallpaper" -User "Matrix" -Force
 
+      - name: Set Timezone to Asia/Jakarta
+        shell: pwsh
+        run: |
+          tzutil /s "SE Asia Standard Time"
+
 
       - name: Keep session alive
         run: |
