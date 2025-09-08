@@ -132,48 +132,45 @@ jobs:
               reg add "HKCU\Control Panel\Desktop" /v Wallpaper /t REG_SZ /d $wallpaperPath /f
               RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
               Start-Sleep -Seconds 2
-      
-              # 3. Apply EnigMano wallpaper with SystemParametersInfo
-              $artifactUrl = "https://gitlab.com/Shahzaib-YT/enigmano-windows-11-with-sound/-/raw/main/EnigMano.jpg"
-              $themeDir = "$env:APPDATA\Microsoft\Windows\Themes"
-              $localPath = Join-Path $themeDir "EnigMano.jpg"
-      
-              Write-Progress -Activity "Personalizing Environment" -Status "Preparing..." -PercentComplete 20
-              New-Item -Path $themeDir -ItemType Directory -Force | Out-Null
-              Start-Sleep -Seconds 1
-      
-              Write-Progress -Activity "Personalizing Environment" -Status "Downloading..." -PercentComplete 50
-              Invoke-WebRequest -Uri $artifactUrl -OutFile $localPath -UseBasicParsing
-              Start-Sleep -Seconds 1
-      
-              Write-Progress -Activity "Personalizing Environment" -Status "Applying EnigMano Wallpaper..." -PercentComplete 80
-              Add-Type @"
-                  using System.Runtime.InteropServices;
-                  public class EnigManoVisual {
-                      [DllImport("user32.dll", SetLastError = true)]
-                      public static extern bool SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
-                  }
-      "@
-              Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $localPath
-              Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value 6
-              Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -Value 0
-              [EnigManoVisual]::SystemParametersInfo(0x0014, 0, $localPath, 0x0001 -bor 0x0002) | Out-Null
-              Start-Sleep -Seconds 1
-      
-              Write-Progress -Activity "Personalizing Environment" -Status "Done!" -PercentComplete 100 -Completed
-          }
-          catch {
-              Write-Error "Personalization Failed: $_"
-              exit 1
-          }
-          '@ | Out-File -FilePath C:\Scripts\ApplyDarkTheme.ps1 -Encoding UTF8
-      
-          # Register Scheduled Task untuk user Matrix (jalan tiap login, termasuk RDP)
-          $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Scripts\ApplyDarkTheme.ps1"
-          $Trigger = New-ScheduledTaskTrigger -AtLogOn
-          Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "ApplyDarkTheme" -User "Matrix" -Force
-
-
+              $ErrorActionPreference = "Stop"
+              
+              try {
+                  $artifactUrl  = "https://gitlab.com/Shahzaib-YT/enigmano-windows-11-with-sound/-/raw/main/EnigMano.jpg"
+                  $themeDir     = "$env:APPDATA\Microsoft\Windows\Themes"
+                  $localPath    = Join-Path $themeDir "EnigMano.jpg"
+              
+                  # Progress 0% → 20%
+                  Write-Progress -Activity "Personalizing Environment" -Status "Preparing asset directory..." -PercentComplete 20
+                  New-Item -Path $themeDir -ItemType Directory -Force | Out-Null
+                  Start-Sleep -Seconds 2
+              
+                  # Progress 20% → 50%
+                  Write-Progress -Activity "Personalizing Environment" -Status "Downloading EnigMano Visual Artifact..." -PercentComplete 50
+                  Invoke-WebRequest -Uri $artifactUrl -OutFile $localPath -UseBasicParsing
+                  Start-Sleep -Seconds 2
+              
+                  # Progress 50% → 80%
+                  Write-Progress -Activity "Personalizing Environment" -Status "Applying Wallpaper Settings..." -PercentComplete 80
+                  Add-Type @"
+              using System.Runtime.InteropServices;
+              public class EnigManoVisual {
+                  [DllImport("user32.dll", SetLastError = true)]
+                  public static extern bool SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
+              }
+              "@
+                  Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $localPath
+                  Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value 6
+                  Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -Value 0
+                  [EnigManoVisual]::SystemParametersInfo(0x0014, 0, $localPath, 0x0001 -bor 0x0002) | Out-Null
+                  Start-Sleep -Seconds 2
+              
+                  # Progress 100%
+                  Write-Progress -Activity "Personalizing Environment" -Status "Visual Signature Deployed Successfully" -PercentComplete 100 -Completed
+              }
+              catch {
+                  Write-Error "Personalization Failed: $_"
+                  exit 1
+              }
           
 
       - name: Keep session alive
