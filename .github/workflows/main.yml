@@ -21,7 +21,7 @@ jobs:
 
       - name: Start Tailscale
         run: |
-          $env:TAILSCALE_AUTHKEY="tskey-auth-kuPp5Rxm6Q11CNTRL-4ExWeijvyHeiZYBqWLkuHemtCHqCsd4ZK"
+          $env:TAILSCALE_AUTHKEY="tskey-auth-kVv6qvnxx821CNTRL-7rm8Yd5t2S2mbCeNqadoR27U9RAU62rm"
           & "C:\Program Files\Tailscale\tailscale.exe" up --authkey $env:TAILSCALE_AUTHKEY --accept-routes
 
       - name: Get Tailscale IP
