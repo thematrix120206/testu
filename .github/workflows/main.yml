@@ -21,7 +21,7 @@ jobs:
 
       - name: Start Tailscale
         run: |
-          & "C:\Program Files\Tailscale\tailscale.exe" up --authkey "$env:TAILSCALE_AUTHKEY" --accept-routes
+          & "C:\Program Files\Tailscale\tailscale.exe" up --authkey "tskey-auth-kPy3EJdz1911CNTRL-SJ76xpV2SRGQKeDwYbMWRGSvjvxXrKFBh" --accept-routes
         env:
           TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
 
@@ -30,10 +30,6 @@ jobs:
           $tailscale_ip = & "C:\Program Files\Tailscale\tailscale.exe" ip -4
           Write-Host "Tailscale IP: $tailscale_ip"
           echo "TAILSCALE_IP=$tailscale_ip" >> $GITHUB_ENV
-
-      - name: Display Tailscale IP
-        run: |
-          echo "The Tailscale IP address is: ${{ env.TAILSCALE_IP }}"
 
       - name: Disable password complexity
         run: |
@@ -78,8 +74,6 @@ jobs:
       
           # Unload hive
           REG UNLOAD HKLM\Default
-
-
 
           
       - name: Enable RDP
