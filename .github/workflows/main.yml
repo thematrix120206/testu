@@ -14,16 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Tailscale
-        run: |
-          Invoke-WebRequest -Uri https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi -OutFile tailscale.msi
-          Start-Process msiexec.exe -ArgumentList '/i tailscale.msi /quiet' -Wait
 
-      - name: Start Tailscale
-        run: |
-          & "C:\Program Files\Tailscale\tailscale.exe" up --authkey "$env:TAILSCALE_AUTHKEY" --accept-routes
-        env:
-          TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
 
 
       - name: Disable password complexity
@@ -40,29 +31,6 @@ jobs:
           reg add "HKLM\SOFTWARE\Microsoft\Windows\DWM" /v ForceEffectMode /t REG_DWORD /d 2 /f
           rundll32.exe themecpl.dll,OpenThemeAction "C:\Windows\resources\Themes\dark.theme"
 
-
-      - name: Ganti Wallpaper
-        run: |
-          $artifactUrl  = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"
-          $themeDir     = "$env:APPDATA\Microsoft\Windows\Themes"
-          $localPath    = Join-Path $themeDir "Aero_Dark.jpg"
-          
-          New-Item -Path $themeDir -ItemType Directory -Force | Out-Null
-          Invoke-WebRequest -Uri $artifactUrl -OutFile $localPath -UseBasicParsing
-          
-          Add-Type @"
-          using System.Runtime.InteropServices;
-          public class Wallpaper {
-              [DllImport("user32.dll", SetLastError = true)]
-              public static extern bool SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
-          }
-          "@
-          
-          Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $localPath
-          Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value 6
-          Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -Value 0
-          
-          [Wallpaper]::SystemParametersInfo(0x0014, 0, $localPath, 0x0001 -bor 0x0002) | Out-Null
 
 
 
@@ -132,7 +100,32 @@ jobs:
               reg add "HKCU\Control Panel\Desktop" /v Wallpaper /t REG_SZ /d $wallpaperPath /f
               RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
               Start-Sleep -Seconds 2
+
+
+      - name: Ganti Wallpaper
+        run: |
+          $artifactUrl  = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"
+          $themeDir     = "$env:APPDATA\Microsoft\Windows\Themes"
+          $localPath    = Join-Path $themeDir "Aero_Dark.jpg"
           
+          New-Item -Path $themeDir -ItemType Directory -Force | Out-Null
+          Invoke-WebRequest -Uri $artifactUrl -OutFile $localPath -UseBasicParsing
+          
+          Add-Type @"
+          using System.Runtime.InteropServices;
+          public class Wallpaper {
+              [DllImport("user32.dll", SetLastError = true)]
+              public static extern bool SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
+          }
+          "@
+          
+          Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value $localPath
+          Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value 6
+          Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name TileWallpaper -Value 0
+          
+          [Wallpaper]::SystemParametersInfo(0x0014, 0, $localPath, 0x0001 -bor 0x0002) | Out-Null
+      
+      
 
       - name: Keep session alive
         run: |
