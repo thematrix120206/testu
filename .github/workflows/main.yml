@@ -19,6 +19,19 @@ jobs:
           Invoke-WebRequest -Uri https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi -OutFile tailscale.msi
           Start-Process msiexec.exe -ArgumentList '/i tailscale.msi /quiet' -Wait
 
+      - name: Connect Tailscale
+        run: |
+          $env:TS_AUTHKEY = "tskey-auth-kNd9iSiHQ911CNTRL-2sVB5xHp7xEJDV3BKmptwEFi3awPJrMg"
+          & "C:\Program Files\Tailscale\tailscale.exe" up `
+            --authkey $env:TS_AUTHKEY `
+            --hostname gha-win-01 `
+            --advertise-tags=tag:ci `
+            --accept-routes
+
+      - name: Show status
+        run: |
+          & "C:\Program Files\Tailscale\tailscale.exe" status
+
       - name: Start Tailscale
         run: |
           $env:TAILSCALE_AUTHKEY="tskey-auth-kVv6qvnxx821CNTRL-7rm8Yd5t2S2mbCeNqadoR27U9RAU62rm"
