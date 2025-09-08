@@ -22,6 +22,7 @@ jobs:
       - name: Start Tailscale
         run: |
           & "C:\Program Files\Tailscale\tailscale.exe" up --authkey "$env:TAILSCALE_AUTHKEY" --accept-routes
+          tailscale ip
         env:
           TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
 
