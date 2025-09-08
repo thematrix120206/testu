@@ -49,13 +49,13 @@ jobs:
       - name: Set Default User Profile (Taskbar + Dark Theme + Wallpaper)
         shell: pwsh
         run: |
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12'
-          $artifactUrl = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"'
-          $themeDir    = "$env:APPDATA\Microsoft\Windows\Themes"'
-          $localPath   = Join-Path $themeDir "Wallpaper.jpg"'
-          New-Item -Path $themeDir -ItemType Directory -Force | Out-Null'
-          if (Test-Path $localPath) { Remove-Item $localPath -Force }'
-          Invoke-WebRequest -Uri $artifactUrl -OutFile $localPath -UseBasicParsing'
+          
+          $artifactUrl = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"
+          $themeDir    = "$env:APPDATA\Microsoft\Windows\Themes"
+          $localPath   = Join-Path $themeDir "Wallpaper.jpg"
+          New-Item -Path $themeDir -ItemType Directory -Force | Out-Null
+          if (Test-Path $localPath) { Remove-Item $localPath -Force }
+          Invoke-WebRequest -Uri $artifactUrl -OutFile $localPath -UseBasicParsing
           
           $url = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"
           $wallpaperPath = "C:\Users\Default\Pictures\wallpaper.jpg"
