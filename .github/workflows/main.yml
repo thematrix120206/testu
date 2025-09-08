@@ -114,21 +114,19 @@ jobs:
 
 
 
-      - name: Ganti Wallpaper
+      - name: Setup Auto Wallpaper on RDP Login
         shell: pwsh
         run: |
-          $wallpaperUrl = "https://4kwallpapers.com/images/wallpapers/windows-11-dark-mode-blue-stock-official-3840x2160-5630.jpg"
-          $themeDir = "$env:APPDATA\Microsoft\Windows\Themes"
-          $localPath = Join-Path $themeDir "TranscodedWallpaper"
+          New-Item -ItemType Directory -Path C:\Scripts -Force | Out-Null
           
-          # Pastikan folder ada
-          New-Item -ItemType Directory -Path $themeDir -Force | Out-Null
+          @'
+          (isi SetWallpaper.ps1 dari atas)
+          '@ | Out-File -FilePath C:\Scripts\SetWallpaper.ps1 -Encoding UTF8
           
-          # Download wallpaper dan overwrite TranscodedWallpaper
-          Invoke-WebRequest -Uri $wallpaperUrl -OutFile $localPath -Force
-          
-          # Refresh desktop biar wallpaper langsung ganti
-          RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
+          # Daftarkan Scheduled Task supaya selalu jalan tiap login Matrix
+          $Action  = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Scripts\SetWallpaper.ps1"
+          $Trigger = New-ScheduledTaskTrigger -AtLogOn
+          Register-ScheduledTask -Action $Action -Trigger $Trigger -TaskName "SetWallpaper" -User "Matrix" -RunLevel Highest -Force
 
 
       - name: Keep session alive
