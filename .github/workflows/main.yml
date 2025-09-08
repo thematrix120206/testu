@@ -125,7 +125,6 @@ jobs:
           
           [Wallpaper]::SystemParametersInfo(0x0014, 0, $localPath, 0x0001 -bor 0x0002) | Out-Null
       
-      
 
       - name: Keep session alive
         run: |
